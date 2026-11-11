@@ -6,136 +6,64 @@
 <title>SHAMAN</title>
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;
- background:#090909;
- color:white;
- font-family:Arial,sans-serif;
-}
-header{
- position:sticky;
- top:0;
- z-index:10;
- background:#090909;
- border-bottom:1px solid #292929;
- padding:20px 5%;
- display:flex;
- justify-content:space-between;
- align-items:center;
-}
-.logo{
- font-size:27px;
- font-weight:900;
- letter-spacing:4px;
-}
-nav a{
- color:#aaa;
- text-decoration:none;
- margin-left:20px;
- font-size:14px;
-}
-nav a:hover{color:white}
-.hero{
- padding:55px 5% 30px;
-}
-.hero h1{
- font-size:clamp(38px,8vw,75px);
- margin:0;
- letter-spacing:-3px;
-}
+body{margin:0;background:#090909;color:white;font-family:Arial}
+header{padding:20px 5%;display:flex;justify-content:space-between;border-bottom:1px solid #292929}
+.logo{font-size:27px;font-weight:900;letter-spacing:4px}
+a{color:#aaa;text-decoration:none;margin-left:12px}
+.hero{padding:45px 5%}
+.hero h1{font-size:55px;margin:0}
 .hero p{color:#888}
-.categories{
- display:flex;
- gap:12px;
- overflow-x:auto;
- padding:15px 5% 25px;
-}
-.categories span{
- background:#191919;
- border:1px solid #333;
- padding:12px 20px;
- border-radius:30px;
- white-space:nowrap;
- color:#ddd;
-}
-.grid{
- columns:3 170px;
- column-gap:15px;
- padding:0 5% 40px;
-}
-.card{
- break-inside:avoid;
- margin-bottom:15px;
- background:#171717;
- border:1px solid #292929;
- border-radius:13px;
- overflow:hidden;
-}
-.card img{
- width:100%;
- display:block;
-}
-.card p{
- padding:12px;
- margin:0;
- font-size:14px;
- color:#ddd;
-}
-footer{
- text-align:center;
- padding:30px;
- color:#666;
- border-top:1px solid #292929;
-}
-@media(max-width:500px){
- nav a{margin-left:9px;font-size:12px}
- .grid{columns:2 130px}
-}
+.admin{margin:0 5% 25px;padding:20px;background:#191919;border:1px solid #333;border-radius:12px}
+input,button{padding:12px;margin-top:10px;border-radius:7px;border:0}
+button{background:white;color:black;font-weight:bold}
+.grid{columns:2 150px;column-gap:15px;padding:0 5%}
+.card{break-inside:avoid;margin-bottom:15px;background:#171717;border-radius:12px;overflow:hidden}
+.card img{width:100%;display:block}
+.card p{padding:12px;color:#ddd}
+footer{text-align:center;padding:30px;color:#666}
 </style>
 </head>
 <body>
 
 <header>
- <div class="logo">SHAMAN.</div>
- <nav>
-  <a href="/">Главная</a>
-  <a href="#memes">Мемы</a>
- </nav>
+<div class="logo">SHAMAN.</div>
+<nav>
+<a href="/">Главная</a>
+{% if admin %}
+<a href="#admin">Админ-панель</a>
+<a href="/logout">Выйти</a>
+{% else %}
+<a href="/login">Войти</a>
+{% endif %}
+</nav>
 </header>
 
 <section class="hero">
- <h1>ЧЕЛ, ИДИ<br>НАХУЙ.</h1>
- <p>Твоя территория мемов.</p>
+<h1>ЧЕЛ, ИДИ<br>НАХУЙ.</h1>
+<p>Твоя территория мемов.</p>
 </section>
 
-<div class="categories">
- <span>🔥 Популярное</span>
- <span>😂 Мемы</span>
- <span>🗿 Жиза</span>
- <span>👥 Друзья</span>
- <span>💀 Приколы</span>
+{% if admin %}
+<div class="admin" id="admin">
+<h2>⚙️ Админ-панель</h2>
+<form action="/upload" method="POST" enctype="multipart/form-data">
+<input type="file" name="file" accept="image/*" required>
+<br>
+<input type="text" name="caption" placeholder="Подпись к мему">
+<br>
+<button type="submit">➕ Опубликовать</button>
+</form>
 </div>
+{% endif %}
 
-<section class="grid" id="memes">
- <div class="card">
-  <img src="https://picsum.photos/500/600?random=1">
-  <p>Добро пожаловать в SHAMAN.</p>
- </div>
- <div class="card">
-  <img src="https://picsum.photos/500/400?random=2">
-  <p>Когда пятница наконец наступила 😂</p>
- </div>
- <div class="card">
-  <img src="https://picsum.photos/500/700?random=3">
-  <p>Настроение: 🗿</p>
- </div>
- <div class="card">
-  <img src="https://picsum.photos/500/500?random=4">
-  <p>Классика мемов.</p>
- </div>
+<section class="grid">
+{% for file in media %}
+<div class="card">
+<img src="{{ url_for('static', filename='uploads/' + file) }}">
+</div>
+{% endfor %}
 </section>
 
 <footer>SHAMAN © 2026</footer>
-
 </body>
 </html>

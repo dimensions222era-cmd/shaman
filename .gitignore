@@ -1,0 +1,4 @@
+admin.txt
+__pycache__/
+*.pyc
+static/uploads/

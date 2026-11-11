@@ -2,24 +2,30 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHAMAN ADMIN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Вход — SHAMAN MUSIC</title>
 <style>
-body{background:#090909;color:white;font-family:Arial;display:grid;place-items:center;height:100vh;margin:0}
-.box{background:#171717;padding:30px;border:1px solid #444;border-radius:15px;width:80%;max-width:350px;text-align:center}
-input,button{width:100%;padding:15px;margin-top:15px;box-sizing:border-box}
-input{background:#090909;color:white;border:1px solid #555}
-button{background:white;color:black;font-weight:bold;border:0}
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:white;font-family:Arial;display:grid;place-items:center;min-height:100vh;padding:20px}
+.box{width:100%;max-width:380px;background:#151515;padding:30px;border-radius:18px}
+h1{letter-spacing:3px}
+p{color:#888}
+input,button{width:100%;padding:14px;margin-top:13px;border-radius:9px}
+input{background:#090909;color:white;border:1px solid #333}
+button{background:white;color:black;border:0;font-weight:bold}
+a{color:#aaa}
 </style>
 </head>
 <body>
 <div class="box">
-<h1>SHAMAN.</h1>
-<p>ADMIN PANEL</p>
-<form method="POST">
-<input type="password" name="password" placeholder="Пароль" required>
-<button>ВОЙТИ</button>
+<h1>SHAMAN MUSIC</h1>
+<p>Рады снова видеть тебя</p>
+<form method="post">
+<input name="username" placeholder="Логин" required>
+<input name="password" type="password" placeholder="Пароль" required>
+<button type="submit">ВОЙТИ</button>
 </form>
+<p>Нет аккаунта? <a href="/register">Регистрация</a></p>
 </div>
 </body>
 </html>

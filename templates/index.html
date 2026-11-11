@@ -3,67 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SHAMAN</title>
+<title>SHAMAN MUSIC</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#090909;color:white;font-family:Arial}
-header{padding:20px 5%;display:flex;justify-content:space-between;border-bottom:1px solid #292929}
-.logo{font-size:27px;font-weight:900;letter-spacing:4px}
-a{color:#aaa;text-decoration:none;margin-left:12px}
-.hero{padding:45px 5%}
-.hero h1{font-size:55px;margin:0}
-.hero p{color:#888}
-.admin{margin:0 5% 25px;padding:20px;background:#191919;border:1px solid #333;border-radius:12px}
-input,button{padding:12px;margin-top:10px;border-radius:7px;border:0}
-button{background:white;color:black;font-weight:bold}
-.grid{columns:2 150px;column-gap:15px;padding:0 5%}
-.card{break-inside:avoid;margin-bottom:15px;background:#171717;border-radius:12px;overflow:hidden}
-.card img{width:100%;display:block}
-.card p{padding:12px;color:#ddd}
-footer{text-align:center;padding:30px;color:#666}
+body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif;padding-bottom:125px}
+body:before,body:after{content:"";position:fixed;inset:-30%;pointer-events:none;z-index:0;filter:blur(55px);opacity:.18;background:radial-gradient(ellipse at 20% 50%,#777,transparent 35%),radial-gradient(ellipse at 75% 35%,#555,transparent 38%);animation:smoke 25s ease-in-out infinite alternate}
+body:after{animation:smoke2 32s ease-in-out infinite alternate;opacity:.12}
+@keyframes smoke{to{transform:translate(8%,5%) scale(1.2)}}
+@keyframes smoke2{to{transform:translate(-8%,-5%) scale(1.3)}}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+.sidebar{width:220px;background:#111;padding:30px 20px;flex-shrink:0}
+.logo{font-size:22px;font-weight:bold;letter-spacing:2px;margin-bottom:40px}
+.logo span{color:#888}
+nav a{display:block;color:#999;text-decoration:none;padding:13px 10px;border-radius:9px;margin:5px 0}
+nav a:hover{background:#252525;color:white}
+.main{flex:1;padding:30px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top a,.link{color:#aaa;text-decoration:none}
+.hero{margin-top:30px;padding:35px;border-radius:18px;background:linear-gradient(100deg,#292929,#101010);min-height:190px;display:flex;flex-direction:column;justify-content:center}
+.hero small{color:#aaa;letter-spacing:3px}
+.hero h1{font-size:38px;margin:13px 0}
+.hero p{color:#aaa}
+h2{font-size:21px;margin-top:35px}
+.tracks{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:17px}
+.track{background:#151515;padding:12px;border-radius:13px;min-width:0;transition:.2s}
+.track:hover{background:#222;transform:translateY(-3px)}
+.cover img{width:100%;height:100%;object-fit:cover;border-radius:9px}
+.cover{height:125px;background:linear-gradient(135deg,#444,#111);border-radius:9px;display:grid;place-items:center;font-size:38px;color:#aaa}
+.track b{display:block;margin-top:12px;overflow-wrap:anywhere;font-size:13px}
+.track small{color:#888}
+.track button,.admin button{margin-top:10px;background:white;color:#111;border:0;border-radius:20px;padding:9px 15px;cursor:pointer}
+.track button:hover,.admin button:hover{background:#ccc}
+.empty,.admin{color:#aaa;background:#151515;padding:20px;border-radius:12px}
+.admin input{display:block;margin:12px 0;max-width:320px}
+input{background:#111;color:white;border:1px solid #333;border-radius:8px;padding:12px}
+.player{position:fixed;bottom:0;left:0;right:0;background:#171717;border-top:1px solid #333;padding:13px 22px;z-index:5;display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;gap:20px}
+.now{min-width:0}
+.now b,.now small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.now small{color:#888;margin-top:5px}
+.controls{display:flex;align-items:center;justify-content:center;gap:13px}
+.player button{border:0;cursor:pointer;color:white;background:transparent;font-size:19px;padding:7px}
+.player button:hover{color:#aaa}
+.player button.mainplay{background:white;color:black;border-radius:50%;width:42px;height:42px;font-size:17px}
+.progress{display:flex;align-items:center;gap:9px;margin-top:8px;color:#999;font-size:11px}
+input[type=range]{padding:0;accent-color:white;cursor:pointer;height:4px}
+#seek{flex:1}
+.volume{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+#volume{width:90px}
+.active{color:white!important}
+audio{display:none}
+@media(max-width:650px){
+.sidebar{width:65px;padding:20px 8px}
+.logo{font-size:0}.logo:first-letter{font-size:22px}
+nav a{font-size:0;text-align:center}
+nav a:first-letter{font-size:19px}
+.main{padding:18px 12px}
+.hero{padding:22px}.hero h1{font-size:28px}
+.player{grid-template-columns:1fr auto;gap:8px;padding:10px}
+.controls{grid-column:1/3;grid-row:2}
+.volume{display:none}
+.progress{grid-column:1/3;grid-row:3;margin-top:0}
+}
 </style>
 </head>
 <body>
-
-<header>
-<div class="logo">SHAMAN.</div>
+<div class="layout">
+<aside class="sidebar">
+<div class="logo">SHAMAN <span>MUSIC</span></div>
 <nav>
-<a href="/">Главная</a>
-{% if admin %}
-<a href="#admin">Админ-панель</a>
-<a href="/logout">Выйти</a>
+<a href="/">⌂ Главная</a>
+<a href="#tracks">♫ Все треки</a>
+<a href="#tracks">♡ Музыка</a>
+{% if user %}
+<a href="#profile">👤 {{ user.username }}</a>
+<a href="/logout">↪ Выйти</a>
 {% else %}
-<a href="/login">Войти</a>
+<a href="/login">→ Войти</a>
+<a href="/register">＋ Регистрация</a>
 {% endif %}
+<a href="/admin/login">⚙ Администратор</a>
 </nav>
-</header>
-
+</aside>
+<main class="main">
+<div class="top">
+<strong>Музыкальная коллекция</strong>
+{% if user %}<span>Привет, {{ user.username }}!</span>{% else %}<span>Добро пожаловать!</span>{% endif %}
+</div>
 <section class="hero">
-<h1>ЧЕЛ, ИДИ<br>НАХУЙ.</h1>
-<p>Твоя территория мемов.</p>
+<small>ТВОЯ МУЗЫКА. ТВОИ ПРАВИЛА.</small>
+<h1>SHAMAN MUSIC</h1>
+<p>Музыка, которая всегда с тобой.</p>
 </section>
-
-{% if admin %}
-<div class="admin" id="admin">
-<h2>⚙️ Админ-панель</h2>
-<form action="/upload" method="POST" enctype="multipart/form-data">
-<input type="file" name="file" accept="image/*" required>
-<br>
-<input type="text" name="caption" placeholder="Подпись к мему">
-<br>
-<button type="submit">➕ Опубликовать</button>
-</form>
+<h2 id="tracks">Все треки</h2>
+<div class="tracks">
+{% for track in tracks %}
+<div class="track">
+<div class="cover">{% if covers.get(track) %}<img src="{{ covers[track] }}" alt="Обложка">{% else %}♫{% endif %}</div>
+<b>{{ track }}</b>
+<small>SHAMAN MUSIC</small>
+<button onclick="playTrack({{ track|tojson }})">▶ Слушать</button>
 </div>
-{% endif %}
-
-<section class="grid">
-{% for file in media %}
-<div class="card">
-<img src="{{ url_for('static', filename='uploads/' + file) }}">
-</div>
+{% else %}
+<div class="empty">Пока нет музыки. Скоро здесь появятся треки.</div>
 {% endfor %}
+</div>
+{% if admin %}
+<section class="admin">
+<h2>Админ-панель</h2>
+<p>Добавить музыкальный файл</p>
+<form action="/upload" method="post" enctype="multipart/form-data">
+<label>Музыкальный файл:</label>
+<input type="file" name="file" accept=".mp3,.wav,.ogg,.m4a" required>
+<label>Обложка (необязательно):</label>
+<input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp">
+<button type="submit">Загрузить музыку</button>
+</form>
+<p><a class="link" href="/logout">Выйти из админ-панели</a></p>
 </section>
+{% endif %}
+</main>
+</div>
 
-<footer>SHAMAN © 2026</footer>
+<div class="player">
+<div class="now">
+<b id="current">Ничего не играет</b>
+<small>SHAMAN MUSIC</small>
+</div>
+<div class="controls">
+<button id="shuffle" onclick="toggleShuffle()" title="Случайный порядок">🔀</button>
+<button onclick="previousTrack()" title="Предыдущий">⏮</button>
+<button class="mainplay" id="toggle" onclick="togglePlay()">▶</button>
+<button onclick="nextTrack()" title="Следующий">⏭</button>
+<button id="repeat" onclick="toggleRepeat()" title="Повтор">🔁</button>
+</div>
+<div class="volume">
+<span>🔊</span>
+<input id="volume" type="range" min="0" max="1" step="0.01" value="0.8">
+</div>
+<div class="progress">
+<span id="elapsed">0:00</span>
+<input id="seek" type="range" min="0" max="100" value="0">
+<span id="duration">0:00</span>
+</div>
+<audio id="audio"></audio>
+</div>
+
+<script>
+const tracks={{ tracks|tojson }};
+const audio=document.getElementById('audio');
+const toggle=document.getElementById('toggle');
+const seek=document.getElementById('seek');
+let currentIndex=-1;
+let shuffle=false;
+let repeat=false;
+
+function formatTime(seconds){
+if(!Number.isFinite(seconds))return '0:00';
+const m=Math.floor(seconds/60);
+const s=Math.floor(seconds%60);
+return m+':'+String(s).padStart(2,'0');
+}
+
+function playTrack(name){
+currentIndex=tracks.indexOf(name);
+audio.src='/static/uploads/'+encodeURIComponent(name);
+document.getElementById('current').textContent=name;
+audio.play().then(()=>toggle.textContent='Ⅱ').catch(()=>{
+toggle.textContent='▶';
+alert('Не удалось воспроизвести этот файл.');
+});
+}
+
+function togglePlay(){
+if(!audio.src){
+if(tracks.length)playTrack(tracks[0]);
+return;
+}
+if(audio.paused){
+audio.play().then(()=>toggle.textContent='Ⅱ').catch(()=>{});
+}else{
+audio.pause();
+toggle.textContent='▶';
+}
+}
+
+function nextTrack(){
+if(!tracks.length)return;
+if(shuffle && tracks.length>1){
+let next;
+do{next=Math.floor(Math.random()*tracks.length)}while(next===currentIndex);
+currentIndex=next;
+}else{
+currentIndex=(currentIndex+1)%tracks.length;
+}
+playTrack(tracks[currentIndex]);
+}
+
+function previousTrack(){
+if(!tracks.length)return;
+if(audio.currentTime>3){
+audio.currentTime=0;
+return;
+}
+currentIndex=(currentIndex-1+tracks.length)%tracks.length;
+playTrack(tracks[currentIndex]);
+}
+
+function toggleShuffle(){
+shuffle=!shuffle;
+document.getElementById('shuffle').classList.toggle('active',shuffle);
+}
+
+function toggleRepeat(){
+repeat=!repeat;
+audio.loop=repeat;
+document.getElementById('repeat').classList.toggle('active',repeat);
+}
+
+audio.addEventListener('timeupdate',()=>{
+if(audio.duration){
+seek.value=(audio.currentTime/audio.duration)*100;
+}
+document.getElementById('elapsed').textContent=formatTime(audio.currentTime);
+document.getElementById('duration').textContent=formatTime(audio.duration);
+});
+
+audio.addEventListener('ended',()=>{
+toggle.textContent='▶';
+if(!repeat)nextTrack();
+});
+
+audio.addEventListener('play',()=>toggle.textContent='Ⅱ');
+audio.addEventListener('pause',()=>toggle.textContent='▶');
+
+seek.addEventListener('input',()=>{
+if(audio.duration)audio.currentTime=(seek.value/100)*audio.duration;
+});
+
+document.getElementById('volume').addEventListener('input',e=>{
+audio.volume=Number(e.target.value);
+});
+
+audio.volume=0.8;
+</script>
 </body>
 </html>

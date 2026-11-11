@@ -150,6 +150,7 @@ nav a:first-letter{font-size:19px}
 
 <script>
 const tracks={{ tracks|tojson }};
+const trackUrls={{ track_urls|tojson }};
 const audio=document.getElementById('audio');
 const toggle=document.getElementById('toggle');
 const seek=document.getElementById('seek');
@@ -166,7 +167,7 @@ return m+':'+String(s).padStart(2,'0');
 
 function playTrack(name){
 currentIndex=tracks.indexOf(name);
-audio.src='/static/uploads/'+encodeURIComponent(name);
+audio.src=trackUrls[name] || '';
 document.getElementById('current').textContent=name;
 audio.play().then(()=>toggle.textContent='Ⅱ').catch(()=>{
 toggle.textContent='▶';

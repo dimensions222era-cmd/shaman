@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.utils import secure_filename
 from models import db, User, Track
+from authlib.integrations.flask_client import OAuth
 import os
 import secrets
 import hmac
@@ -9,6 +10,15 @@ import mimetypes
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+
+oauth = OAuth(app)
+google = oauth.register(
+    name="google",
+    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"}
+)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///shaman.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -132,6 +142,54 @@ def count_play(filename):
     track.plays += 1
     db.session.commit()
     return {"plays": track.plays}
+
+
+@app.route("/login/google")
+def google_login():
+    if not os.environ.get("GOOGLE_CLIENT_ID") or not os.environ.get("GOOGLE_CLIENT_SECRET"):
+        return "Google-вход пока не настроен", 503
+
+    redirect_uri = url_for("google_callback", _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route("/google/callback")
+def google_callback():
+    try:
+        token = google.authorize_access_token()
+        info = token.get("userinfo") or google.parse_id_token(token)
+        email = info.get("email", "").strip().lower()
+
+        if not email or not info.get("email_verified"):
+            return "Не удалось подтвердить Google-почту", 400
+
+        user = User.query.filter_by(email=email).first()
+
+        if user is None:
+            base = email.split("@")[0][:25] or "user"
+            username = base
+            number = 1
+
+            while User.query.filter_by(username=username).first():
+                suffix = str(number)
+                username = base[:30-len(suffix)] + suffix
+                number += 1
+
+            user = User(
+                username=username,
+                email=email,
+                password_hash=secrets.token_hex(32)
+            )
+            db.session.add(user)
+            db.session.commit()
+
+        session.clear()
+        session["user_id"] = user.id
+        return redirect("/")
+
+    except Exception:
+        app.logger.exception("Google login failed")
+        return "Ошибка входа через Google. Попробуй ещё раз.", 400
 
 
 @app.route("/register", methods=["GET", "POST"])

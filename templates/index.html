@@ -80,6 +80,14 @@ nav a:first-letter{font-size:19px}
 .volume{display:none}
 .progress{grid-column:1/3;grid-row:3;margin-top:0}
 }
+
+.search-settings{display:flex;gap:12px;align-items:center;margin:25px 0;flex-wrap:wrap}
+.search-box{flex:1;min-width:180px;position:relative}
+.search-box input{width:100%;border-radius:25px;padding:14px 18px;background:#242424}
+.settings-box{display:flex;align-items:center;gap:8px;background:#242424;padding:7px 12px;border-radius:25px}
+.settings-box select{background:#242424;color:white;border:0;padding:8px;outline:none;max-width:145px}
+.settings-title{font-size:13px;color:#b3b3b3}
+.track.hidden{display:none}
 </style>
 </head>
 <body>
@@ -104,6 +112,19 @@ nav a:first-letter{font-size:19px}
 <div class="top">
 <strong>Музыкальная коллекция</strong>
 {% if user %}<span>Привет, {{ user.username }}!</span>{% else %}<span>Добро пожаловать!</span>{% endif %}
+</div>
+<div class="search-settings">
+<div class="search-box">
+<input id="searchInput" type="search" placeholder="🔍 Поиск музыки..." data-i18n-placeholder="search">
+</div>
+<div class="settings-box">
+<span>⚙️</span>
+<select id="languageSelect" aria-label="Язык">
+<option value="ru">🇷🇺 Русский</option>
+<option value="uk">🇺🇦 Українська</option>
+<option value="en">🇬🇧 English</option>
+</select>
+</div>
 </div>
 <section class="hero">
 <small>ТВОЯ МУЗЫКА. ТВОИ ПРАВИЛА.</small>
@@ -307,6 +328,67 @@ audio.volume=Number(e.target.value);
 });
 
 audio.volume=0.8;
+
+const searchInput = document.getElementById('searchInput');
+const languageSelect = document.getElementById('languageSelect');
+
+const translations = {
+ru: {
+search:'🔍 Поиск музыки...', collection:'Музыкальная коллекция',
+welcome:'Добро пожаловать!', hero:'ТВОЯ МУЗЫКА. ТВОИ ПРАВИЛА.',
+tagline:'Музыка, которая всегда с тобой.',
+top:'🏆 ТОП-10 популярных треков', all:'Все треки',
+listen:'▶ Слушать', plays:'прослушиваний'
+},
+uk: {
+search:'🔍 Пошук музики...', collection:'Музична колекція',
+welcome:'Ласкаво просимо!', hero:'ТВОЯ МУЗИКА. ТВОЇ ПРАВИЛА.',
+tagline:'Музика, яка завжди з тобою.',
+top:'🏆 ТОП-10 популярних треків', all:'Усі треки',
+listen:'▶ Слухати', plays:'прослуховувань'
+},
+en: {
+search:'🔍 Search music...', collection:'Music collection',
+welcome:'Welcome!', hero:'YOUR MUSIC. YOUR RULES.',
+tagline:'Music that is always with you.',
+top:'🏆 TOP 10 popular tracks', all:'All tracks',
+listen:'▶ Listen', plays:'plays'
+}
+};
+
+function setLanguage(lang) {
+const t = translations[lang] || translations.ru;
+localStorage.setItem('shaman-language', lang);
+languageSelect.value = lang;
+
+document.querySelector('.top strong').textContent = t.collection;
+const welcome = document.querySelector('.top span');
+if (welcome && !welcome.textContent.includes('Привет') && !welcome.textContent.includes('Вітаємо') && !welcome.textContent.includes('Hello')) welcome.textContent = t.welcome;
+
+document.querySelector('.hero small').textContent = t.hero;
+document.querySelector('.hero p').textContent = t.tagline;
+document.querySelectorAll('h2')[0].textContent = t.top;
+document.querySelectorAll('h2')[1].textContent = t.all;
+searchInput.placeholder = t.search;
+
+document.querySelectorAll('.track button').forEach(b => b.textContent = t.listen);
+document.querySelectorAll('.plays').forEach(p => {
+const number = p.querySelector('span');
+if (number) p.lastChild.textContent = ' ' + t.plays;
+});
+}
+
+searchInput.addEventListener('input', () => {
+const query = searchInput.value.trim().toLocaleLowerCase();
+document.querySelectorAll('.track').forEach(card => {
+const text = card.innerText.toLocaleLowerCase();
+card.classList.toggle('hidden', !text.includes(query));
+});
+});
+
+languageSelect.addEventListener('change', () => setLanguage(languageSelect.value));
+setLanguage(localStorage.getItem('shaman-language') || 'ru');
+
 </script>
 </body>
 </html>

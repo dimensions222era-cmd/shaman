@@ -133,6 +133,10 @@ def home():
         user=User.query.get(session.get("user_id"))
     )
 
+@app.route("/settings")
+def settings():
+    return render_template("settings.html")
+
 @app.route("/play/<path:filename>", methods=["POST"])
 def count_play(filename):
     track = Track.query.filter_by(filename=filename).first()
@@ -317,8 +321,12 @@ def upload():
         db.session.commit()
 
     except requests.RequestException as error:
-        app.logger.error("Supabase upload error: %s", error)
-        return "Ошибка загрузки в Supabase. Проверь настройки хранилища.", 500
+        app.logger.error(
+            "Supabase upload error: %s | Response: %s",
+            error,
+            getattr(getattr(error, "response", None), "text", "Нет ответа")
+        )
+        return "Ошибка загрузки в Supabase. Проверьте логи Render.", 500
 
     return redirect("/")
 

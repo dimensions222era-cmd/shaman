@@ -87,8 +87,29 @@ input[type=range]{padding:0;accent-color:var(--green);cursor:pointer;height:4px}
 .active{color:var(--green)!important}
 audio{display:none}
 @media(max-width:650px){
-.layout{padding:4px;gap:4px}
-.sidebar{width:62px;padding:18px 5px}
+html,body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+}
+.layout{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    padding:4px;
+    gap:4px;
+}
+.sidebar{
+    width:62px;
+    flex:0 0 62px;
+    padding:18px 5px;
+}
+.main{
+    flex:1 1 0;
+    width:0;
+    min-width:0;
+    padding:18px 12px;
+}
 .logo{font-size:0;margin-bottom:25px}.logo:first-letter{font-size:22px}
 nav a{font-size:0;text-align:center;padding:13px 3px}
 nav a:first-letter{font-size:19px}

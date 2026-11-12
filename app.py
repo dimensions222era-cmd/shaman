@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 from werkzeug.utils import secure_filename
-from models import db, User
+from models import db, User, Track
 import os
 import secrets
 import hmac
@@ -83,6 +83,17 @@ def home():
 
         tracks.sort(reverse=True)
 
+        for filename in tracks:
+            record = Track.query.filter_by(filename=filename).first()
+            if record is None:
+                record = Track(
+                    filename=filename,
+                    title=os.path.splitext(filename)[0]
+                )
+                db.session.add(record)
+
+        db.session.commit()
+
         for item in cover_objects:
             name = item.get("name", "")
             if name.startswith("covers/"):
@@ -106,9 +117,22 @@ def home():
         tracks=tracks,
         covers=covers,
         track_urls=track_urls,
+        track_info={t.filename: t for t in Track.query.all()},
+        top_tracks=Track.query.order_by(Track.plays.desc()).limit(10).all(),
         admin=session.get("admin", False),
         user=User.query.get(session.get("user_id"))
     )
+
+@app.route("/play/<path:filename>", methods=["POST"])
+def count_play(filename):
+    track = Track.query.filter_by(filename=filename).first()
+    if not track:
+        return {"error": "Трек не найден"}, 404
+
+    track.plays += 1
+    db.session.commit()
+    return {"plays": track.plays}
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -194,6 +218,19 @@ def upload():
         return "Разрешены MP3, WAV, OGG и M4A", 400
 
     unique_name = secrets.token_hex(8) + "_" + filename
+
+    title = request.form.get("title", "").strip()[:120] or os.path.splitext(filename)[0]
+    artist = request.form.get("artist", "").strip()[:120] or "Неизвестный исполнитель"
+    description = request.form.get("description", "").strip()[:2000]
+    genre = request.form.get("genre", "").strip()[:60] or "Другой"
+
+    year_raw = request.form.get("year", "").strip()
+    try:
+        year = int(year_raw) if year_raw else None
+        if year and not 1900 <= year <= 2100:
+            year = None
+    except ValueError:
+        year = None
     audio_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
 
     try:
@@ -210,6 +247,16 @@ def upload():
                     cover_name = os.path.splitext(unique_name)[0] + "." + cover_ext
                     cover_type = mimetypes.guess_type(cover_name)[0] or "image/jpeg"
                     upload_storage("covers/" + cover_name, cover, cover_type)
+
+        db.session.add(Track(
+            filename=unique_name,
+            title=title,
+            artist=artist,
+            description=description,
+            genre=genre,
+            year=year
+        ))
+        db.session.commit()
 
     except requests.RequestException as error:
         app.logger.error("Supabase upload error: %s", error)

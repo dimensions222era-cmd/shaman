@@ -19,3 +19,13 @@ class Favorite(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     track = db.Column(db.String(255), nullable=False)
+
+class Track(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), unique=True, nullable=False)
+    title = db.Column(db.String(120), nullable=False)
+    artist = db.Column(db.String(120), default="Неизвестный исполнитель")
+    description = db.Column(db.Text, default="")
+    genre = db.Column(db.String(60), default="Другой")
+    year = db.Column(db.Integer, nullable=True)
+    plays = db.Column(db.Integer, default=0, nullable=False)

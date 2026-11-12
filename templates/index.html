@@ -240,37 +240,37 @@ document.body.dataset.theme = savedTheme;
 <aside class="sidebar">
 <div class="logo"><span class="brand-name">SHAMAN</span> <span>MUSIC</span></div>
 <nav>
-<a href="/">⌂ Главная</a>
-<a href="#tracks">♫ Все треки</a>
-<a href="#tracks">♡ Музыка</a>
+<a href="/">⌂ Головна</a>
+<a href="#tracks">♫ Усі треки</a>
+<a href="#tracks">♡ Музика</a>
 {% if user %}
 <a href="#profile">👤 {{ user.username }}</a>
-<a href="/logout">↪ Выйти</a>
+<a href="/logout">↪ Вийти</a>
 {% else %}
-<a href="/login">→ Войти</a>
-<a href="/register">＋ Регистрация</a>
+<a href="/login">→ Увійти</a>
+<a href="/register">＋ Реєстрація</a>
 {% endif %}
 <a href="/settings">⚙️ Налаштування</a>
-<a href="/admin/login">⚙ Администратор</a>
+<a href="/admin/login">⚙ Адміністратор</a>
 </nav>
 </aside>
 <main class="main">
 <div class="top">
-<strong>Музыкальная коллекция</strong>
-{% if user %}<span>Привет, {{ user.username }}!</span>{% else %}<span>Добро пожаловать!</span>{% endif %}
+<strong>Музична колекція</strong>
+{% if user %}<span>Вітаємо, {{ user.username }}!</span>{% else %}<span>Ласкаво просимо!</span>{% endif %}
 </div>
 <div class="search-settings">
 <div class="search-box">
-<input id="searchInput" type="search" placeholder="🔍 Поиск музыки..." data-i18n-placeholder="search">
+<input id="searchInput" type="search" placeholder="🔍 Пошук музики..." data-i18n-placeholder="search">
 </div>
 
 </div>
 <section class="hero">
-<small>ТВОЯ МУЗЫКА. ТВОИ ПРАВИЛА.</small>
+<small>ТВОЯ МУЗИКА. ТВОЇ ПРАВИЛА.</small>
 <h1>SHAMAN MUSIC</h1>
-<p>Музыка, которая всегда с тобой.</p>
+<p>Музика, яка завжди з тобою.</p>
 </section>
-<h2>🏆 ТОП-10 популярных треков</h2>
+<h2>🏆 ТОП-10 популярних треків</h2>
 <div class="top-tracks">
 {% for track in top_tracks %}
 <div class="top-track">

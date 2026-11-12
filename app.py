@@ -156,11 +156,7 @@ def login():
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST":
-        password = os.environ.get("ADMIN_PASSWORD")
-
-        if not password and os.path.exists("admin.txt"):
-            with open("admin.txt") as f:
-                password = f.read().strip()
+        password = os.environ.get("ADMIN_PASSWORD", "")
 
         if password and hmac.compare_digest(
             request.form.get("password", ""), password

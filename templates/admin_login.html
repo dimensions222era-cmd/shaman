@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,17 +14,80 @@ input,button{width:100%;padding:14px;margin-top:13px;border-radius:9px}
 input{background:#090909;color:white;border:1px solid #333}
 button{background:white;color:black;border:0;font-weight:bold}
 a{color:#aaa}
+
+/* CHRISTMAS LOGIN DESIGN */
+body{background:radial-gradient(circle at top,#183b2b,#090909 65%)}
+.box{
+    position:relative;
+    z-index:1;
+    border:1px solid rgba(255,215,120,.4);
+    box-shadow:0 0 30px rgba(190,30,45,.2);
+}
+.box::before{
+    content:"🎅";
+    position:absolute;
+    top:-38px;
+    right:25px;
+    font-size:35px;
+}
+h1{
+    color:#f5d58a;
+    text-shadow:0 0 14px rgba(255,215,120,.4);
+}
+button{
+    background:linear-gradient(120deg,#b51f32,#167a43)!important;
+    color:white!important;
+    cursor:pointer;
+    font-weight:bold;
+}
+button:hover{filter:brightness(1.2)}
+.snow-layer{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:0;
+}
+.snowflake{
+    position:absolute;
+    top:-20px;
+    color:white;
+    animation:snowfall linear infinite;
+    text-shadow:0 0 5px white;
+}
+@keyframes snowfall{
+    to{transform:translateY(110vh) rotate(360deg)}
+}
+
 </style>
 </head>
 <body>
 <div class="box">
 <h1>SHAMAN ADMIN</h1>
-<p>Вход для администратора</p>
+<p>Вхід для адміністратора</p>
 <form method="post">
-<input name="password" type="password" placeholder="Пароль администратора" required>
-<button type="submit">ВОЙТИ</button>
+<input name="password" type="password" placeholder="Пароль адміністратора" required>
+<button type="submit">УВІЙТИ</button>
 </form>
-<p><a href="/">Вернуться на главную</a></p>
+<p><a href="/">Повернутися на головну</a></p>
 </div>
+<script>
+
+const snowLayer=document.createElement('div');
+snowLayer.className='snow-layer';
+document.body.appendChild(snowLayer);
+for(let i=0;i<35;i++){
+    const f=document.createElement('span');
+    f.className='snowflake';
+    f.textContent='❄';
+    f.style.left=Math.random()*100+'vw';
+    f.style.fontSize=(8+Math.random()*14)+'px';
+    f.style.opacity=.3+Math.random()*.7;
+    f.style.animationDuration=(7+Math.random()*12)+'s';
+    f.style.animationDelay=(-Math.random()*15)+'s';
+    snowLayer.appendChild(f);
+}
+
+</script>
 </body>
 </html>

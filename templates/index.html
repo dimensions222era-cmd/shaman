@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,6 +11,28 @@ body{margin:0;background:#000;color:#fff;font-family:Arial,sans-serif;padding-bo
 .layout{display:flex;min-height:100vh;position:relative;z-index:1;gap:8px;padding:8px}
 .sidebar{width:235px;background:#121212;padding:28px 18px;flex-shrink:0;border-radius:10px}
 .logo{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:40px}
+.logo .brand-name{color:#fff;position:relative;display:inline-block}
+.logo .brand-name::before{
+    content:"";
+    position:absolute;
+    width:23px;
+    height:19px;
+    left:48px;
+    top:-17px;
+    background:linear-gradient(to bottom,#e32636 0 75%,#fff 76% 100%);
+    clip-path:polygon(0 100%,20% 60%,45% 10%,85% 0,100% 100%);
+    transform:rotate(12deg);
+}
+.logo .brand-name::after{
+    content:"";
+    position:absolute;
+    width:7px;
+    height:7px;
+    left:67px;
+    top:-19px;
+    background:#fff;
+    border-radius:50%;
+}
 .logo span{color:var(--green)}
 nav a{display:block;color:var(--muted);text-decoration:none;padding:14px 12px;border-radius:7px;margin:5px 0;font-weight:bold;transition:.2s}
 nav a:hover{background:#242424;color:white}
@@ -88,12 +110,111 @@ nav a:first-letter{font-size:19px}
 .settings-box select{background:#242424;color:white;border:0;padding:8px;outline:none;max-width:145px}
 .settings-title{font-size:13px;color:#b3b3b3}
 .track.hidden{display:none}
+
+body[data-theme="light"] {
+    background:#e9e9ef;
+    color:#171717;
+}
+body[data-theme="light"] .sidebar,
+body[data-theme="light"] .track,
+body[data-theme="light"] .empty,
+body[data-theme="light"] .admin,
+body[data-theme="light"] .player {
+    background:#fff;
+    color:#171717;
+}
+body[data-theme="light"] .main {
+    background:linear-gradient(180deg,#fff 0%,#ededf2 360px);
+}
+body[data-theme="light"] .track:hover,
+body[data-theme="light"] .top-track:hover,
+body[data-theme="light"] nav a:hover {
+    background:#e5e5ed;
+    color:#171717;
+}
+body[data-theme="light"] input,
+body[data-theme="light"] textarea,
+body[data-theme="light"] .search-box input {
+    background:#f3f3f7;
+    color:#171717;
+    border-color:#ccc;
+}
+body[data-theme="light"] .player button {
+    color:#171717;
+}
+
+
+/* NEW YEAR SNOW */
+#snow-container{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:5;
+}
+.snowflake{
+    position:fixed;
+    top:-20px;
+    z-index:5;
+    color:white;
+    pointer-events:none;
+    user-select:none;
+    animation:snowfall linear infinite;
+    text-shadow:0 0 5px #fff;
+}
+@keyframes snowfall{
+    to{transform:translateY(110vh) rotate(360deg)}
+}
+
+
+/* CHRISTMAS DESIGN */
+.hero{
+    border:1px solid rgba(255,215,120,.25);
+    box-shadow:0 0 22px rgba(220,30,45,.12);
+}
+.hero h1{
+    text-shadow:0 0 15px rgba(255,215,120,.35);
+}
+.logo .brand-name{
+    text-shadow:0 0 10px rgba(255,255,255,.35);
+}
+:root{
+    --green:#20c878;
+}
+
+
+/* CHRISTMAS ADMIN PANEL */
+.admin {
+    position:relative;
+    border:1px solid rgba(255,215,120,.4);
+    box-shadow:0 0 25px rgba(190,30,45,.16);
+    background:linear-gradient(145deg,#211b1b,#18251d);
+}
+.admin h2 {
+    color:#f5d58a;
+    text-shadow:0 0 12px rgba(255,215,120,.3);
+}
+.admin h2::before {
+    content:"🎅 ";
+}
+.admin button {
+    background:linear-gradient(120deg,#b51f32,#167a43);
+    color:white;
+}
+.admin label {
+    color:#e5d8bd;
+}
+
 </style>
 </head>
 <body>
+<script>
+const savedTheme = localStorage.getItem('shaman-theme') || 'dark';
+document.body.dataset.theme = savedTheme;
+</script>
 <div class="layout">
 <aside class="sidebar">
-<div class="logo">SHAMAN <span>MUSIC</span></div>
+<div class="logo"><span class="brand-name">SHAMAN</span> <span>MUSIC</span></div>
 <nav>
 <a href="/">⌂ Главная</a>
 <a href="#tracks">♫ Все треки</a>
@@ -105,6 +226,7 @@ nav a:first-letter{font-size:19px}
 <a href="/login">→ Войти</a>
 <a href="/register">＋ Регистрация</a>
 {% endif %}
+<a href="/settings">⚙️ Налаштування</a>
 <a href="/admin/login">⚙ Администратор</a>
 </nav>
 </aside>
@@ -117,14 +239,7 @@ nav a:first-letter{font-size:19px}
 <div class="search-box">
 <input id="searchInput" type="search" placeholder="🔍 Поиск музыки..." data-i18n-placeholder="search">
 </div>
-<div class="settings-box">
-<span>⚙️</span>
-<select id="languageSelect" aria-label="Язык">
-<option value="ru">🇷🇺 Русский</option>
-<option value="uk">🇺🇦 Українська</option>
-<option value="en">🇬🇧 English</option>
-</select>
-</div>
+
 </div>
 <section class="hero">
 <small>ТВОЯ МУЗЫКА. ТВОИ ПРАВИЛА.</small>
@@ -330,16 +445,8 @@ audio.volume=Number(e.target.value);
 audio.volume=0.8;
 
 const searchInput = document.getElementById('searchInput');
-const languageSelect = document.getElementById('languageSelect');
 
 const translations = {
-ru: {
-search:'🔍 Поиск музыки...', collection:'Музыкальная коллекция',
-welcome:'Добро пожаловать!', hero:'ТВОЯ МУЗЫКА. ТВОИ ПРАВИЛА.',
-tagline:'Музыка, которая всегда с тобой.',
-top:'🏆 ТОП-10 популярных треков', all:'Все треки',
-listen:'▶ Слушать', plays:'прослушиваний'
-},
 uk: {
 search:'🔍 Пошук музики...', collection:'Музична колекція',
 welcome:'Ласкаво просимо!', hero:'ТВОЯ МУЗИКА. ТВОЇ ПРАВИЛА.',
@@ -357,9 +464,9 @@ listen:'▶ Listen', plays:'plays'
 };
 
 function setLanguage(lang) {
-const t = translations[lang] || translations.ru;
+if (!translations[lang]) lang = 'uk';
+const t = translations[lang];
 localStorage.setItem('shaman-language', lang);
-languageSelect.value = lang;
 
 document.querySelector('.top strong').textContent = t.collection;
 const welcome = document.querySelector('.top span');
@@ -386,8 +493,28 @@ card.classList.toggle('hidden', !text.includes(query));
 });
 });
 
-languageSelect.addEventListener('change', () => setLanguage(languageSelect.value));
-setLanguage(localStorage.getItem('shaman-language') || 'ru');
+setLanguage(localStorage.getItem('shaman-language') || 'uk');
+
+</script>
+<script>
+
+// New Year snow
+const snowContainer = document.createElement('div');
+snowContainer.id = 'snow-container';
+snowContainer.style.pointerEvents = 'none';
+document.body.appendChild(snowContainer);
+
+for(let i=0;i<35;i++){
+    const flake=document.createElement('span');
+    flake.className='snowflake';
+    flake.textContent='❄';
+    flake.style.left=Math.random()*100+'vw';
+    flake.style.fontSize=(8+Math.random()*13)+'px';
+    flake.style.opacity=0.3+Math.random()*0.7;
+    flake.style.animationDuration=(7+Math.random()*12)+'s';
+    flake.style.animationDelay=(-Math.random()*15)+'s';
+    snowContainer.appendChild(flake);
+}
 
 </script>
 </body>

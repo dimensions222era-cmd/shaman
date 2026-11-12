@@ -6,69 +6,75 @@
 <title>SHAMAN MUSIC</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif;padding-bottom:125px}
-body:before,body:after{content:"";position:fixed;inset:-30%;pointer-events:none;z-index:0;filter:blur(55px);opacity:.18;background:radial-gradient(ellipse at 20% 50%,#777,transparent 35%),radial-gradient(ellipse at 75% 35%,#555,transparent 38%);animation:smoke 25s ease-in-out infinite alternate}
-body:after{animation:smoke2 32s ease-in-out infinite alternate;opacity:.12}
-@keyframes smoke{to{transform:translate(8%,5%) scale(1.2)}}
-@keyframes smoke2{to{transform:translate(-8%,-5%) scale(1.3)}}
-.layout{display:flex;min-height:100vh;position:relative;z-index:1}
-.sidebar{width:220px;background:#111;padding:30px 20px;flex-shrink:0}
-.logo{font-size:22px;font-weight:bold;letter-spacing:2px;margin-bottom:40px}
-.logo span{color:#888}
-nav a{display:block;color:#999;text-decoration:none;padding:13px 10px;border-radius:9px;margin:5px 0}
-nav a:hover{background:#252525;color:white}
-.main{flex:1;padding:30px;min-width:0}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.top a,.link{color:#aaa;text-decoration:none}
-.hero{margin-top:30px;padding:35px;border-radius:18px;background:linear-gradient(100deg,#292929,#101010);min-height:190px;display:flex;flex-direction:column;justify-content:center}
-.hero small{color:#aaa;letter-spacing:3px}
-.hero h1{font-size:38px;margin:13px 0}
-.hero p{color:#aaa}
-h2{font-size:21px;margin-top:35px}
-.tracks{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:17px}
-.track{background:#151515;padding:12px;border-radius:13px;min-width:0;transition:.2s}
-.track:hover{background:#222;transform:translateY(-3px)}
-.cover img{width:100%;height:100%;object-fit:cover;border-radius:9px}
-.cover{height:125px;background:linear-gradient(135deg,#444,#111);border-radius:9px;display:grid;place-items:center;font-size:38px;color:#aaa}
-.track b{display:block;margin-top:12px;overflow-wrap:anywhere;font-size:13px}
-.track small{color:#aaa}
-.top-tracks{display:grid;gap:10px;margin-top:15px}
-.top-track{display:flex;align-items:center;gap:15px;background:#151515;padding:14px;border-radius:12px}
+:root{--green:#1ed760;--bg:#121212;--panel:#181818;--hover:#282828;--muted:#b3b3b3}
+body{margin:0;background:#000;color:#fff;font-family:Arial,sans-serif;padding-bottom:110px}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1;gap:8px;padding:8px}
+.sidebar{width:235px;background:#121212;padding:28px 18px;flex-shrink:0;border-radius:10px}
+.logo{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:40px}
+.logo span{color:var(--green)}
+nav a{display:block;color:var(--muted);text-decoration:none;padding:14px 12px;border-radius:7px;margin:5px 0;font-weight:bold;transition:.2s}
+nav a:hover{background:#242424;color:white}
+.main{flex:1;padding:28px 30px;min-width:0;background:linear-gradient(180deg,#202020 0%,#121212 360px);border-radius:10px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted)}
+.top a,.link{color:var(--green);text-decoration:none}
+.hero{margin-top:25px;padding:38px;border-radius:12px;background:linear-gradient(110deg,#166534,#123d27 55%,#121212);min-height:220px;display:flex;flex-direction:column;justify-content:center}
+.hero small{color:#d1fae5;letter-spacing:3px;font-weight:bold}
+.hero h1{font-size:48px;margin:14px 0;font-weight:900}
+.hero p{color:#e5e5e5}
+h2{font-size:23px;margin-top:38px;margin-bottom:18px}
+.tracks{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:18px}
+.track{background:#181818;padding:15px;border-radius:9px;min-width:0;transition:.2s;position:relative}
+.track:hover{background:#282828;transform:translateY(-3px)}
+.cover img{width:100%;height:100%;object-fit:cover;border-radius:7px}
+.cover{height:165px;background:linear-gradient(135deg,#333,#111);border-radius:7px;display:grid;place-items:center;font-size:48px;color:var(--green);overflow:hidden}
+.track b{display:block;margin-top:14px;overflow-wrap:anywhere;font-size:14px}
+.track small{color:var(--muted)}
+.top-tracks{display:grid;gap:8px;margin-top:15px}
+.top-track{display:flex;align-items:center;gap:15px;background:transparent;padding:12px;border-radius:7px;transition:.2s}
+.top-track:hover{background:#282828}
 .top-track b,.top-track small{display:block}
-.top-track small{color:#888;margin-top:5px}
+.top-track small{color:var(--muted);margin-top:5px}
 .top-track>div{flex:1;min-width:0}
-.rank{font-size:20px;font-weight:bold;color:#aaa;min-width:35px}
-.top-plays{font-size:12px;color:#999;white-space:nowrap}
-.top-track button{background:#292929;color:white;border:0;border-radius:50%;width:35px;height:35px}
-.track-meta{font-size:12px;color:#999;margin:8px 0 4px}
-.plays{font-size:12px;color:#888;margin:5px 0}
-.track button,.admin button{margin-top:10px;background:white;color:#111;border:0;border-radius:20px;padding:9px 15px;cursor:pointer}
-.track button:hover,.admin button:hover{background:#ccc}
-.empty,.admin{color:#aaa;background:#151515;padding:20px;border-radius:12px}
-.admin input{display:block;margin:12px 0;max-width:320px}
-input{background:#111;color:white;border:1px solid #333;border-radius:8px;padding:12px}
-.player{position:fixed;bottom:0;left:0;right:0;background:#171717;border-top:1px solid #333;padding:13px 22px;z-index:5;display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;gap:20px}
+.rank{font-size:18px;font-weight:bold;color:var(--muted);min-width:35px}
+.top-plays{font-size:12px;color:var(--muted);white-space:nowrap}
+.top-track button{background:var(--green);color:#000;border:0;border-radius:50%;width:36px;height:36px;font-weight:bold;cursor:pointer}
+.track-meta{font-size:12px;color:var(--muted);margin:8px 0 4px}
+.plays{font-size:12px;color:var(--muted);margin:5px 0}
+.track button,.admin button{margin-top:10px;background:var(--green);color:#000;border:0;border-radius:25px;padding:11px 19px;font-weight:bold;cursor:pointer;transition:.2s}
+.track button:hover,.admin button:hover{transform:scale(1.04);background:#3be477}
+.empty,.admin{color:var(--muted);background:#181818;padding:20px;border-radius:10px}
+.admin{margin-top:35px}
+.admin input,.admin textarea{display:block;margin:12px 0;max-width:420px;width:100%}
+input,textarea{background:#242424;color:white;border:1px solid #444;border-radius:7px;padding:12px;font:inherit}
+input:focus,textarea:focus{outline:1px solid var(--green)}
+textarea{min-height:85px}
+.player{position:fixed;bottom:0;left:0;right:0;background:#181818;border-top:1px solid #333;padding:12px 22px;z-index:5;display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;gap:20px}
 .now{min-width:0}
 .now b,.now small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.now small{color:#888;margin-top:5px}
+.now small{color:var(--muted);margin-top:5px}
 .controls{display:flex;align-items:center;justify-content:center;gap:13px}
 .player button{border:0;cursor:pointer;color:white;background:transparent;font-size:19px;padding:7px}
-.player button:hover{color:#aaa}
+.player button:hover{color:var(--green)}
 .player button.mainplay{background:white;color:black;border-radius:50%;width:42px;height:42px;font-size:17px}
-.progress{display:flex;align-items:center;gap:9px;margin-top:8px;color:#999;font-size:11px}
-input[type=range]{padding:0;accent-color:white;cursor:pointer;height:4px}
+.player button.mainplay:hover{transform:scale(1.06);background:var(--green)}
+.progress{display:flex;align-items:center;gap:9px;margin-top:8px;color:var(--muted);font-size:11px}
+input[type=range]{padding:0;accent-color:var(--green);cursor:pointer;height:4px}
 #seek{flex:1}
 .volume{display:flex;align-items:center;justify-content:flex-end;gap:8px}
 #volume{width:90px}
-.active{color:white!important}
+.active{color:var(--green)!important}
 audio{display:none}
 @media(max-width:650px){
-.sidebar{width:65px;padding:20px 8px}
-.logo{font-size:0}.logo:first-letter{font-size:22px}
-nav a{font-size:0;text-align:center}
+.layout{padding:4px;gap:4px}
+.sidebar{width:62px;padding:18px 5px}
+.logo{font-size:0;margin-bottom:25px}.logo:first-letter{font-size:22px}
+nav a{font-size:0;text-align:center;padding:13px 3px}
 nav a:first-letter{font-size:19px}
 .main{padding:18px 12px}
-.hero{padding:22px}.hero h1{font-size:28px}
+.hero{padding:22px;min-height:180px}.hero h1{font-size:29px}
+.tracks{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cover{height:135px}
+.track{padding:10px}
 .player{grid-template-columns:1fr auto;gap:8px;padding:10px}
 .controls{grid-column:1/3;grid-row:2}
 .volume{display:none}

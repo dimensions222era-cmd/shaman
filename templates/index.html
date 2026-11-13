@@ -368,6 +368,7 @@ document.body.dataset.theme = savedTheme;
 <p class="track-meta">{{ track_info[track].genre }}{% if track_info[track].year %} · {{ track_info[track].year }}{% endif %}</p>
 <p class="plays">▶ <span id="plays-{{ track }}">{{ track_info[track].plays }}</span> прослушиваний</p>
 <button onclick="playTrack({{ track|tojson }})">▶ Слушать</button>
+<button class="favorite-button" onclick="toggleFavorite({{ track|tojson }})">♡ В избранное</button>
 {% if admin %}
 <details class="track-admin">
 <summary>✏️ Изменить трек</summary>
@@ -394,6 +395,17 @@ document.body.dataset.theme = savedTheme;
 <div class="empty">Пока нет музыки. Скоро здесь появятся треки.</div>
 {% endfor %}
 </div>
+
+<section id="favorites">
+<h2>♡ Избранное</h2>
+<div id="favoritesList"></div>
+</section>
+
+<section id="library">
+<h2>▤ Библиотека — недавно прослушанное</h2>
+<div id="recentList"></div>
+</section>
+
 {% if admin %}
 <section class="admin">
 <h2>Админ-панель</h2>
@@ -427,6 +439,14 @@ document.body.dataset.theme = savedTheme;
 {% endif %}
 </main>
 </div>
+
+<nav class="mobile-bottom-nav">
+<a href="/">⌂<span>Главная</span></a>
+<a href="#tracks">♫<span>Все треки</span></a>
+<a href="#favorites">♡<span>Избранное</span></a>
+<a href="#library">▤<span>Библиотека</span></a>
+<a href="/settings">⚙<span>Настройки</span></a>
+</nav>
 
 <div class="player">
 <div class="now">
@@ -462,6 +482,81 @@ let currentIndex=-1;
 let shuffle=false;
 let repeat=false;
 
+const recentKey = 'shaman-recent-tracks';
+const favoritesKey = 'shaman-favorite-tracks';
+
+function getSavedList(key) {
+    try { return JSON.parse(localStorage.getItem(key) || '[]'); }
+    catch (e) { return []; }
+}
+
+function saveList(key, list) {
+    localStorage.setItem(key, JSON.stringify(list));
+}
+
+function rememberTrack(name) {
+    let recent = getSavedList(recentKey).filter(item => item !== name);
+    recent.unshift(name);
+    saveList(recentKey, recent.slice(0, 30));
+    renderSavedLists();
+}
+
+function toggleFavorite(name) {
+    let favorites = getSavedList(favoritesKey);
+    if (favorites.includes(name)) {
+        favorites = favorites.filter(item => item !== name);
+    } else {
+        favorites.unshift(name);
+    }
+    saveList(favoritesKey, favorites);
+    renderSavedLists();
+}
+
+function renderSavedLists() {
+    const favorites = getSavedList(favoritesKey);
+    const recent = getSavedList(recentKey);
+
+    document.querySelectorAll('.favorite-button').forEach(button => {
+        const card = button.closest('.track');
+        if (!card) return;
+        const playButton = card.querySelector('button[onclick^="playTrack"]');
+        if (!playButton) return;
+        const match = playButton.getAttribute('onclick').match(/playTrack\((.*)\)/);
+        if (!match) return;
+        try {
+            const name = JSON.parse(match[1]);
+            button.textContent = favorites.includes(name) ? '♥ В избранном' : '♡ В избранное';
+        } catch (e) {}
+    });
+
+    function fillList(elementId, names, emptyText) {
+        const container = document.getElementById(elementId);
+        if (!container) return;
+        container.innerHTML = '';
+        const validNames = names.filter(name => tracks.includes(name));
+        if (!validNames.length) {
+            container.textContent = emptyText;
+            return;
+        }
+        validNames.forEach(name => {
+            const item = document.createElement('div');
+            item.className = 'saved-track';
+            const title = document.createElement('span');
+            title.textContent = name;
+            const play = document.createElement('button');
+            play.textContent = '▶ Слушать';
+            play.onclick = () => playTrack(name);
+            item.append(title, play);
+            container.appendChild(item);
+        });
+    }
+
+    fillList('favoritesList', favorites, 'Пока нет избранных треков.');
+    fillList('recentList', recent, 'Здесь появятся недавно прослушанные треки.');
+}
+
+renderSavedLists();
+
 function formatTime(seconds){
 if(!Number.isFinite(seconds))return '0:00';
 const m=Math.floor(seconds/60);
@@ -470,6 +565,7 @@ return m+':'+String(s).padStart(2,'0');
 }
 
 function playTrack(name){
+rememberTrack(name);
 currentIndex=tracks.indexOf(name);
 audio.src=trackUrls[name] || '';
 document.getElementById('current').textContent=name;
@@ -770,53 +866,69 @@ for(let i=0;i<35;i++){
     margin: 5px 0 0;
 }
 
-/* SHAMAN BOTTOM MOBILE NAV */
+/* SHAMAN MOBILE BOTTOM NAV */
+.mobile-bottom-nav { display: none; }
+
+.saved-track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px;
+    margin: 8px 0;
+    background: #181818;
+    border-radius: 10px;
+}
+.saved-track span { overflow-wrap: anywhere; }
+
 @media (max-width: 650px) {
-    body { padding-bottom: 165px !important; }
-    .layout { display: block !important; padding: 4px !important; }
-    .sidebar {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        top: auto !important;
-        z-index: 100 !important;
-        width: 100% !important;
-        height: auto !important;
-        padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) !important;
-        border-radius: 14px 14px 0 0 !important;
-        background: #181818 !important;
-        border-top: 1px solid #333 !important;
+    body {
+        padding-bottom: 90px !important;
+        overflow-x: hidden;
     }
-    .sidebar .logo { display: none !important; }
-    .sidebar nav {
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: space-around !important;
-        align-items: center !important;
-        gap: 2px !important;
-        overflow-x: auto !important;
-        width: 100% !important;
+    .layout {
+        display: block !important;
+        padding: 4px !important;
     }
-    .sidebar nav a {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex: 1 0 auto !important;
-        min-width: 52px !important;
-        padding: 7px 3px !important;
-        margin: 0 !important;
-        font-size: 10px !important;
-        line-height: 1.3 !important;
-        text-align: center !important;
-        white-space: nowrap !important;
-    }
+    .sidebar { display: none !important; }
     .main {
         width: 100% !important;
         min-width: 0 !important;
         padding: 14px 10px !important;
     }
+    .player { display: none !important; }
+
+    .mobile-bottom-nav {
+        display: flex !important;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        justify-content: space-around;
+        align-items: center;
+        gap: 2px;
+        padding: 8px 3px calc(8px + env(safe-area-inset-bottom));
+        background: #181818;
+        border-top: 1px solid #333;
+    }
+    .mobile-bottom-nav a {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        color: #b3b3b3;
+        text-decoration: none;
+        font-size: 20px;
+        line-height: 1.2;
+    }
+    .mobile-bottom-nav a span {
+        font-size: 10px;
+        white-space: nowrap;
+    }
+    .mobile-bottom-nav a:active { color: #1ed760; }
 }
 
 </style>

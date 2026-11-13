@@ -290,6 +290,35 @@ body[data-theme="light"] .player button {
 }
 
 </style>
+
+<style>
+/* SHAMAN PAGE TRANSITIONS */
+html {
+    scroll-behavior: smooth;
+}
+body {
+    animation: shamanPageIn .45s ease both;
+}
+@keyframes shamanPageIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+a, button, input, select {
+    transition: transform .2s ease, opacity .2s ease,
+                background-color .2s ease, box-shadow .2s ease;
+}
+button:active, a:active {
+    transform: scale(.97);
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+</style>
+
 </head>
 <body>
 <script>
@@ -825,24 +854,28 @@ async function searchYouTube() {
 
 
 const youtubeModal = document.getElementById('youtubeModal');
-document.getElementById('youtubeModalClose').addEventListener('click', () => {
+
+function closeYoutubeModal() {
+    if (!youtubeModal.classList.contains('active')) return;
+
     youtubeModal.classList.remove('active');
-    document.getElementById('youtubeModalVideo').replaceChildren();
     document.body.style.overflow = '';
-});
+
+    setTimeout(() => {
+        if (!youtubeModal.classList.contains('active')) {
+            document.getElementById('youtubeModalVideo').replaceChildren();
+        }
+    }, 320);
+}
+
+document.getElementById('youtubeModalClose').addEventListener('click', closeYoutubeModal);
+
 youtubeModal.addEventListener('click', event => {
-    if (event.target === youtubeModal) {
-        youtubeModal.classList.remove('active');
-        document.getElementById('youtubeModalVideo').replaceChildren();
-        document.body.style.overflow = '';
-    }
+    if (event.target === youtubeModal) closeYoutubeModal();
 });
+
 document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && youtubeModal.classList.contains('active')) {
-        youtubeModal.classList.remove('active');
-        document.getElementById('youtubeModalVideo').replaceChildren();
-        document.body.style.overflow = '';
-    }
+    if (event.key === 'Escape') closeYoutubeModal();
 });
 
 youtubeButton.addEventListener('click', searchYouTube);
@@ -1062,5 +1095,112 @@ for(let i=0;i<35;i++){
     .youtube-modal-content { padding: 12px; border-radius: 16px; }
     .youtube-modal-info { flex-wrap: wrap; }
     #youtubeModalFavorite { width: 100%; }
+}
+</style>
+
+<style>
+/* SHAMAN MUSIC — SMOOTH ANIMATIONS */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    animation: siteFadeIn .65s ease both;
+}
+
+@keyframes siteFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.main, .sidebar {
+    animation: panelAppear .55s ease both;
+}
+
+@keyframes panelAppear {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.track, .top-track, .saved-track, .youtube-result {
+    transition:
+        transform .25s ease,
+        background .25s ease,
+        box-shadow .25s ease,
+        opacity .25s ease;
+}
+
+.track:active, .youtube-result:active {
+    transform: scale(.98);
+}
+
+button, nav a, .mobile-bottom-nav a {
+    transition:
+        transform .2s ease,
+        background .2s ease,
+        color .2s ease,
+        box-shadow .2s ease;
+}
+
+button:active {
+    transform: scale(.95);
+}
+
+button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 4px;
+}
+
+.hero {
+    animation: heroAppear .8s ease both;
+}
+
+@keyframes heroAppear {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(.985);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.youtube-modal {
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.youtube-modal.active {
+    opacity: 1;
+}
+
+.youtube-modal-content {
+    transform: translateY(22px) scale(.97);
+    transition: transform .3s ease;
+}
+
+.youtube-modal.active .youtube-modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.mobile-bottom-nav {
+    transition: transform .3s ease, opacity .3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 </style>

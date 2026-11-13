@@ -47,6 +47,35 @@ button,a{
 }
 
 </style>
+
+<style>
+/* SHAMAN PAGE TRANSITIONS */
+html {
+    scroll-behavior: smooth;
+}
+body {
+    animation: shamanPageIn .45s ease both;
+}
+@keyframes shamanPageIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+a, button, input, select {
+    transition: transform .2s ease, opacity .2s ease,
+                background-color .2s ease, box-shadow .2s ease;
+}
+button:active, a:active {
+    transform: scale(.97);
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+</style>
+
 </head>
 <body>
 <div class="container">

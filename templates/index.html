@@ -494,6 +494,9 @@ document.body.dataset.theme = savedTheme;
 <a href="#" data-view="tracks">♫<span>Все треки</span></a>
 <a href="#" data-view="favorites">♡<span>Избранное</span></a>
 <a href="#" data-view="library">▤<span>Библиотека</span></a>
+{% if admin %}
+<a href="#" data-view="admin">⚙<span>Админ</span></a>
+{% endif %}
 <a href="/settings">⚙<span>Настройки</span></a>
 </nav>
 
@@ -514,12 +517,19 @@ document.body.dataset.theme = savedTheme;
     const adminPanel = document.querySelector('.admin');
 
     function showView(name) {
-        if (!views[name]) return;
+        if (name === 'admin' && !adminPanel) return;
+        if (!views[name] && name !== 'admin') return;
+
         Object.entries(views).forEach(([key, element]) => {
             element.classList.toggle('app-view-hidden', key !== name);
         });
+
         if (adminPanel) {
-            adminPanel.classList.toggle('app-view-hidden', name !== 'home');
+            const isMobile = window.matchMedia('(max-width: 650px)').matches;
+            adminPanel.classList.toggle(
+                'app-view-hidden',
+                isMobile && name !== 'admin'
+            );
         }
         navLinks.forEach(link => {
             link.classList.toggle('active', link.dataset.view === name);

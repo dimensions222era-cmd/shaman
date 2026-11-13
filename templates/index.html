@@ -665,6 +665,22 @@ async function searchYouTube() {
             play.addEventListener('click', () => {
                 youtubePlayer.replaceChildren();
 
+                const cover = document.createElement('img');
+                cover.src = item.thumbnail;
+                cover.alt = '';
+
+                const info = document.createElement('div');
+                info.className = 'track-info';
+
+                const trackTitle = document.createElement('b');
+                trackTitle.textContent = item.title;
+
+                const artist = document.createElement('p');
+                artist.textContent = item.channelTitle;
+
+                info.append(trackTitle, artist);
+                youtubePlayer.append(cover, info);
+
                 const iframe = document.createElement('iframe');
                 iframe.src = 'https://www.youtube-nocookie.com/embed/' +
                     encodeURIComponent(item.videoId) + '?autoplay=1';
@@ -719,3 +735,38 @@ for(let i=0;i<35;i++){
 </script>
 </body>
 </html>
+
+<style>
+#youtubePlayer {
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 16px;
+    background: #181818;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+#youtubePlayer:empty {
+    display: none;
+}
+#youtubePlayer img {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+#youtubePlayer .track-info {
+    min-width: 0;
+}
+#youtubePlayer .track-info b {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#youtubePlayer .track-info p {
+    opacity: .65;
+    margin: 5px 0 0;
+}
+</style>

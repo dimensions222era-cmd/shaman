@@ -414,5 +414,64 @@ def delete_track(track_id):
     return redirect("/")
 
 
+
+
+@app.route("/api/youtube/search")
+def youtube_search():
+    api_key = os.environ.get("YOUTUBE_API_KEY", "")
+    query = request.args.get("q", "").strip()
+
+    if not api_key:
+        return {"error": "YouTube API не настроен"}, 503
+
+    if len(query) < 2:
+        return {"items": []}
+
+    try:
+        response = requests.get(
+            "https://www.googleapis.com/youtube/v3/search",
+            params={
+                "part": "snippet",
+                "q": query,
+                "type": "video",
+                "videoEmbeddable": "true",
+                "videoSyndicated": "true",
+                "maxResults": 10,
+                "key": api_key
+            },
+            timeout=15
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        items = []
+        for item in data.get("items", []):
+            snippet = item.get("snippet", {})
+            video_id = item.get("id", {}).get("videoId")
+            if not video_id:
+                continue
+
+            thumbnails = snippet.get("thumbnails", {})
+            image = (
+                thumbnails.get("high")
+                or thumbnails.get("medium")
+                or thumbnails.get("default")
+                or {}
+            )
+
+            items.append({
+                "videoId": video_id,
+                "title": snippet.get("title", ""),
+                "channelTitle": snippet.get("channelTitle", ""),
+                "thumbnail": image.get("url", "")
+            })
+
+        return {"items": items}
+
+    except requests.RequestException:
+        app.logger.exception("Ошибка поиска YouTube")
+        return {"error": "Не удалось выполнить поиск YouTube"}, 502
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

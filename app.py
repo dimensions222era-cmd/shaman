@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, send_file
+from io import BytesIO
 from werkzeug.utils import secure_filename
 from models import db, User, Track, Favorite
 from authlib.integrations.flask_client import OAuth
@@ -146,6 +147,30 @@ def count_play(filename):
     track.plays += 1
     db.session.commit()
     return {"plays": track.plays}
+
+
+@app.route("/download/<path:filename>")
+def download_track(filename):
+    track = Track.query.filter_by(filename=filename).first()
+    if not track:
+        return {"error": "Трек не найден"}, 404
+
+    try:
+        response = requests.get(
+            public_url("audio/" + track.filename),
+            timeout=60
+        )
+        response.raise_for_status()
+    except requests.RequestException:
+        return {"error": "Не удалось загрузить аудиофайл"}, 502
+
+    audio_type = mimetypes.guess_type(track.filename)[0] or "audio/mpeg"
+    return send_file(
+        BytesIO(response.content),
+        mimetype=audio_type,
+        as_attachment=True,
+        download_name=os.path.basename(track.filename)
+    )
 
 
 @app.route("/login/google")

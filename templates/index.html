@@ -416,6 +416,7 @@ document.body.dataset.theme = savedTheme;
 <p class="plays">▶ <span id="plays-{{ track }}">{{ track_info[track].plays }}</span> прослушиваний</p>
 <button onclick="playTrack({{ track|tojson }})">▶ Слухати</button>
 <button class="favorite-button" onclick="toggleFavorite({{ track|tojson }})">♡ До обраного</button>
+<a class="download-button" href="{{ url_for('download_track', filename=track) }}">⬇ Завантажити</a>
 {% if admin %}
 <details class="track-admin">
 <summary>✏️ Изменить трек</summary>

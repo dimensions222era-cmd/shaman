@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.utils import secure_filename
-from models import db, User, Track
+from models import db, User, Track, Favorite
 from authlib.integrations.flask_client import OAuth
 import os
 import secrets
@@ -329,6 +329,90 @@ def upload():
         return "Ошибка загрузки в Supabase. Проверьте логи Render.", 500
 
     return redirect("/")
+
+
+def delete_storage(path):
+    response = requests.delete(
+        SUPABASE_URL + "/storage/v1/object/music/" + path,
+        headers=storage_headers(),
+        timeout=30
+    )
+    response.raise_for_status()
+
+
+@app.route("/admin/track/<int:track_id>/edit", methods=["POST"])
+def edit_track(track_id):
+    if not session.get("admin"):
+        return "Доступ запрещён", 403
+
+    track = db.session.get(Track, track_id)
+    if not track:
+        return "Трек не найден", 404
+
+    title = request.form.get("title", "").strip()
+    artist = request.form.get("artist", "").strip()
+    description = request.form.get("description", "").strip()
+    genre = request.form.get("genre", "").strip()
+    year_raw = request.form.get("year", "").strip()
+
+    if not title or len(title) > 120:
+        return "Название обязательно (до 120 символов)", 400
+    if len(artist) > 120 or len(description) > 2000 or len(genre) > 60:
+        return "Слишком длинное поле", 400
+
+    try:
+        year = int(year_raw) if year_raw else None
+    except ValueError:
+        return "Некорректный год", 400
+
+    if year is not None and not 1900 <= year <= 2100:
+        return "Год должен быть от 1900 до 2100", 400
+
+    track.title = title
+    track.artist = artist or "Неизвестный исполнитель"
+    track.description = description
+    track.genre = genre or "Другой"
+    track.year = year
+
+    db.session.commit()
+    return redirect("/")
+
+
+@app.route("/admin/track/<int:track_id>/delete", methods=["POST"])
+def delete_track(track_id):
+    if not session.get("admin"):
+        return "Доступ запрещён", 403
+
+    track = db.session.get(Track, track_id)
+    if not track:
+        return "Трек не найден", 404
+
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return "Supabase не настроен", 500
+
+    try:
+        base = os.path.splitext(track.filename)[0]
+        cover_objects = list_storage("covers")
+
+        for item in cover_objects:
+            name = item.get("name", "")
+            if name.startswith("covers/"):
+                name = name[len("covers/"):]
+            if os.path.splitext(name)[0] == base:
+                delete_storage("covers/" + name)
+
+        delete_storage("audio/" + track.filename)
+
+    except requests.RequestException:
+        app.logger.exception("Не удалось удалить файлы трека")
+        return "Ошибка удаления файлов в Supabase", 500
+
+    Favorite.query.filter_by(track=track.filename).delete()
+    db.session.delete(track)
+    db.session.commit()
+
+    return redirect("/")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

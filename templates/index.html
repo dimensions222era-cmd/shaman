@@ -297,6 +297,27 @@ document.body.dataset.theme = savedTheme;
 <p class="track-meta">{{ track_info[track].genre }}{% if track_info[track].year %} · {{ track_info[track].year }}{% endif %}</p>
 <p class="plays">▶ <span id="plays-{{ track }}">{{ track_info[track].plays }}</span> прослушиваний</p>
 <button onclick="playTrack({{ track|tojson }})">▶ Слушать</button>
+{% if admin %}
+<details class="track-admin">
+<summary>✏️ Изменить трек</summary>
+<form action="/admin/track/{{ track_info[track].id }}/edit" method="post">
+<label>Название:</label>
+<input name="title" maxlength="120" value="{{ track_info[track].title }}" required>
+<label>Исполнитель:</label>
+<input name="artist" maxlength="120" value="{{ track_info[track].artist }}">
+<label>Описание:</label>
+<textarea name="description" maxlength="2000">{{ track_info[track].description or '' }}</textarea>
+<label>Жанр:</label>
+<input name="genre" maxlength="60" value="{{ track_info[track].genre }}">
+<label>Год:</label>
+<input type="number" name="year" min="1900" max="2100" value="{{ track_info[track].year or '' }}">
+<button type="submit">Сохранить изменения</button>
+</form>
+<form action="/admin/track/{{ track_info[track].id }}/delete" method="post" onsubmit="return confirm('Точно удалить этот трек?');">
+<button type="submit">🗑 Удалить трек</button>
+</form>
+</details>
+{% endif %}
 </div>
 {% else %}
 <div class="empty">Пока нет музыки. Скоро здесь появятся треки.</div>

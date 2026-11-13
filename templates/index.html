@@ -355,6 +355,7 @@ document.body.dataset.theme = savedTheme;
 
 </div>
 
+<div id="homeView">
 <section id="youtubeSearchSection">
 <h2>🎵 Поиск музыки на YouTube</h2>
 <div class="search-box">
@@ -402,6 +403,8 @@ document.body.dataset.theme = savedTheme;
 {% endfor %}
 </div>
 
+</div>
+<div id="tracksView">
 <h2 id="tracks">Все треки</h2>
 <div class="tracks">
 {% for track in tracks %}
@@ -438,6 +441,7 @@ document.body.dataset.theme = savedTheme;
 {% else %}
 <div class="empty">Пока нет музыки. Скоро здесь появятся треки.</div>
 {% endfor %}
+</div>
 </div>
 
 <section id="favorites">
@@ -485,12 +489,55 @@ document.body.dataset.theme = savedTheme;
 </div>
 
 <nav class="mobile-bottom-nav">
-<a href="/">⌂<span>Главная</span></a>
-<a href="#tracks">♫<span>Все треки</span></a>
-<a href="#favorites">♡<span>Избранное</span></a>
-<a href="#library">▤<span>Библиотека</span></a>
+<a href="#" data-view="home">⌂<span>Главная</span></a>
+<a href="#" data-view="tracks">♫<span>Все треки</span></a>
+<a href="#" data-view="favorites">♡<span>Избранное</span></a>
+<a href="#" data-view="library">▤<span>Библиотека</span></a>
 <a href="/settings">⚙<span>Настройки</span></a>
 </nav>
+
+
+<style>
+.app-view-hidden { display: none !important; }
+.mobile-bottom-nav a.active { color: #1ed760 !important; }
+</style>
+<script>
+(() => {
+    const views = {
+        home: document.getElementById('homeView'),
+        tracks: document.getElementById('tracksView'),
+        favorites: document.getElementById('favorites'),
+        library: document.getElementById('library')
+    };
+    const navLinks = document.querySelectorAll('.mobile-bottom-nav [data-view]');
+    const adminPanel = document.querySelector('.admin');
+
+    function showView(name) {
+        if (!views[name]) return;
+        Object.entries(views).forEach(([key, element]) => {
+            element.classList.toggle('app-view-hidden', key !== name);
+        });
+        if (adminPanel) {
+            adminPanel.classList.toggle('app-view-hidden', name !== 'home');
+        }
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.view === name);
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', event => {
+            event.preventDefault();
+            showView(link.dataset.view);
+        });
+    });
+
+    const modal = document.getElementById('youtubeModal');
+    if (modal) document.body.appendChild(modal);
+    showView('home');
+})();
+</script>
 
 <div class="player">
 <div class="now">

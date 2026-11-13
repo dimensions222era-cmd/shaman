@@ -334,6 +334,21 @@ document.body.dataset.theme = savedTheme;
 </div>
 <div id="youtubeResults"></div>
 <div id="youtubePlayer"></div>
+
+<div id="youtubeModal" class="youtube-modal">
+    <div class="youtube-modal-content">
+        <button id="youtubeModalClose" class="youtube-modal-close" type="button">✕</button>
+        <div id="youtubeModalVideo"></div>
+        <div class="youtube-modal-info">
+            <img id="youtubeModalCover" src="" alt="">
+            <div class="youtube-modal-text">
+                <b id="youtubeModalTitle"></b>
+                <p id="youtubeModalArtist"></p>
+            </div>
+            <button id="youtubeModalFavorite" type="button">♡ В избранное</button>
+        </div>
+    </div>
+</div>
 </section>
 
 <section class="hero">
@@ -759,36 +774,42 @@ async function searchYouTube() {
             play.type = 'button';
             play.textContent = '▶ Слушать';
             play.addEventListener('click', () => {
-                youtubePlayer.replaceChildren();
+                const modal = document.getElementById('youtubeModal');
+                const video = document.getElementById('youtubeModalVideo');
+                const favorite = document.getElementById('youtubeModalFavorite');
+                const trackKey = 'youtube:' + item.videoId;
 
-                const cover = document.createElement('img');
-                cover.src = item.thumbnail;
-                cover.alt = '';
+                document.getElementById('youtubeModalCover').src = item.thumbnail;
+                document.getElementById('youtubeModalTitle').textContent = item.title;
+                document.getElementById('youtubeModalArtist').textContent = item.channelTitle;
 
-                const info = document.createElement('div');
-                info.className = 'track-info';
-
-                const trackTitle = document.createElement('b');
-                trackTitle.textContent = item.title;
-
-                const artist = document.createElement('p');
-                artist.textContent = item.channelTitle;
-
-                info.append(trackTitle, artist);
-                youtubePlayer.append(cover, info);
-
+                video.replaceChildren();
                 const iframe = document.createElement('iframe');
                 iframe.src = 'https://www.youtube-nocookie.com/embed/' +
                     encodeURIComponent(item.videoId) + '?autoplay=1';
                 iframe.title = item.title;
                 iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
                 iframe.allowFullscreen = true;
-                iframe.style.width = '100%';
-                iframe.style.aspectRatio = '16 / 9';
-                iframe.style.border = '0';
+                video.appendChild(iframe);
 
-                youtubePlayer.appendChild(iframe);
-                youtubePlayer.scrollIntoView({behavior: 'smooth', block: 'center'});
+                function updateFavoriteButton() {
+                    const saved = getSavedList(favoritesKey).includes(trackKey);
+                    favorite.textContent = saved ? '♥ В избранном' : '♡ В избранное';
+                    favorite.classList.toggle('active', saved);
+                }
+
+                favorite.onclick = () => {
+                    let favorites = getSavedList(favoritesKey);
+                    favorites = favorites.includes(trackKey)
+                        ? favorites.filter(name => name !== trackKey)
+                        : [trackKey, ...favorites];
+                    saveList(favoritesKey, favorites);
+                    updateFavoriteButton();
+                };
+
+                updateFavoriteButton();
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
             });
 
             info.append(title, channel, play);
@@ -801,6 +822,28 @@ async function searchYouTube() {
         youtubeButton.disabled = false;
     }
 }
+
+
+const youtubeModal = document.getElementById('youtubeModal');
+document.getElementById('youtubeModalClose').addEventListener('click', () => {
+    youtubeModal.classList.remove('active');
+    document.getElementById('youtubeModalVideo').replaceChildren();
+    document.body.style.overflow = '';
+});
+youtubeModal.addEventListener('click', event => {
+    if (event.target === youtubeModal) {
+        youtubeModal.classList.remove('active');
+        document.getElementById('youtubeModalVideo').replaceChildren();
+        document.body.style.overflow = '';
+    }
+});
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && youtubeModal.classList.contains('active')) {
+        youtubeModal.classList.remove('active');
+        document.getElementById('youtubeModalVideo').replaceChildren();
+        document.body.style.overflow = '';
+    }
+});
 
 youtubeButton.addEventListener('click', searchYouTube);
 youtubeInput.addEventListener('keydown', event => {
@@ -931,4 +974,93 @@ for(let i=0;i<35;i++){
     .mobile-bottom-nav a:active { color: #1ed760; }
 }
 
+</style>
+
+<style>
+.youtube-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,.82);
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(8px);
+}
+.youtube-modal.active {
+    display: flex;
+}
+.youtube-modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    background: #181818;
+    color: white;
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 20px 80px rgba(0,0,0,.6);
+}
+.youtube-modal-close {
+    display: block;
+    margin-left: auto;
+    margin-bottom: 12px;
+    border: 0;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    background: #333;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+#youtubeModalVideo iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    border-radius: 14px;
+}
+.youtube-modal-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+}
+.youtube-modal-info img {
+    width: 76px;
+    height: 76px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+.youtube-modal-text {
+    min-width: 0;
+    flex: 1;
+}
+.youtube-modal-text b {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: 17px;
+}
+.youtube-modal-text p {
+    opacity: .65;
+    margin: 6px 0 0;
+}
+#youtubeModalFavorite {
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    background: #333;
+    color: white;
+    cursor: pointer;
+}
+#youtubeModalFavorite.active {
+    background: #b52d50;
+}
+@media(max-width: 600px) {
+    .youtube-modal { padding: 10px; }
+    .youtube-modal-content { padding: 12px; border-radius: 16px; }
+    .youtube-modal-info { flex-wrap: wrap; }
+    #youtubeModalFavorite { width: 100%; }
+}
 </style>
